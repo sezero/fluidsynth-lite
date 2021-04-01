@@ -364,7 +364,7 @@ unsigned int fluid_curtime(void)
     time -= 11644473600000LL; // Milliseconds between Windows epoch (1601/01/01) and Unix
 
     return time - initial_seconds * 1000;
-#else
+#elif defined(HAVE_CLOCK_GETTIME)
     struct timespec timeval;
 
     if (initial_seconds == 0) {
@@ -397,7 +397,7 @@ fluid_utime (void)
     time -= 11644473600000000ULL; // Microseconds between Windows epoch (1601/01/01) and Unix
 
     return time / 1000000.0;
-#else
+#elif defined(HAVE_CLOCK_GETTIME)
     struct timespec timeval;
 
     clock_gettime(CLOCK_REALTIME, &timeval);

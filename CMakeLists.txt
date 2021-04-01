@@ -75,6 +75,7 @@ include ( DefaultDirs )
 
 # Basic C library checks
 include ( CheckSTDC )
+include ( CheckLibraryExists )
 include ( CheckIncludeFile )
 check_include_file ( string.h HAVE_STRING_H )
 check_include_file ( stdlib.h HAVE_STDLIB_H )
@@ -146,6 +147,16 @@ else ( WIN32 )
 # Check PThreads, but not in Windows
   set ( HAVE_LIBPTHREAD on )
   set ( LIBFLUID_LIBS m pthread )
+  check_library_exists(rt clock_gettime "" FOUND_CLOCK_GETTIME)
+  if(FOUND_CLOCK_GETTIME)
+    set(HAVE_CLOCK_GETTIME 1)
+    set(LIBFLUID_LIBS "${LIBFLUID_LIBS};nsl;rt")
+  else()
+    check_library_exists(c clock_gettime "" FOUND_CLOCK_GETTIME)
+    if(FOUND_CLOCK_GETTIME)
+      set(HAVE_CLOCK_GETTIME 1)
+    endif()
+  endif()
 endif ( WIN32 )
 
 # IBM OS/2
