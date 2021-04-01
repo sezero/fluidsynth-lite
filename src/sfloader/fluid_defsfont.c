@@ -250,7 +250,7 @@ static fluid_mutex_t cached_sampledata_mutex;
 static int fluid_get_file_modification_time(char *filename,
         time_t *modification_time)
 {
-#if defined(WIN32) || defined(__OS2__)
+#if defined(_WIN32) || defined(__OS2__)
     *modification_time = 0;
     return FLUID_OK;
 #else

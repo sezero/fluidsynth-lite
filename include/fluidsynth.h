@@ -27,7 +27,7 @@
 extern "C" {
 #endif
 
-#if defined(WIN32)
+#if defined(_WIN32)
 #if defined(FLUIDSYNTH_DLL_EXPORTS)
 #define FLUIDSYNTH_API __declspec(dllexport)
 #elif defined(FLUIDSYNTH_NOT_A_DLL)

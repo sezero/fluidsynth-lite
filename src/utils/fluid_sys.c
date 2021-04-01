@@ -119,7 +119,7 @@ fluid_default_log_function(int level, char* message, void* data)
 {
     FILE* out;
 
-#if defined(WIN32)
+#if defined(_WIN32)
     out = stdout;
 #else
     out = stderr;
@@ -423,7 +423,7 @@ fluid_utime (void)
 }
 
 
-#if defined(WIN32)      /* Windoze specific stuff */
+#if defined(_WIN32)     /* Windoze specific stuff */
 
 void
 fluid_thread_self_set_prio (int prio_level)

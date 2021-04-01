@@ -221,7 +221,7 @@ void delete_fluid_thread(fluid_thread_t* thread);
 void fluid_thread_self_set_prio (int prio_level);
 int fluid_thread_join(fluid_thread_t* thread);
 
-#else
+#elif defined(_WIN32)
 
 static FLUID_INLINE void
 fluid_win32_mutex_init(PHANDLE m)
