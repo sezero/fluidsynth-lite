@@ -375,6 +375,16 @@ unsigned int fluid_curtime(void)
     clock_gettime(CLOCK_REALTIME, &timeval);
 
     return (unsigned int)((timeval.tv_sec - initial_seconds) * 1000.0 + timeval.tv_nsec / 1000000.0);
+#else
+    struct timeval tv;
+
+    if (initial_seconds == 0) {
+        gettimeofday(&tv, NULL);
+        initial_seconds = tv.tv_sec;
+    }
+
+    gettimeofday(&tv, NULL);
+    return (unsigned int)((tv.tv_sec - initial_seconds) * 1000.0 + tv.tv_usec / 1000.0);
 #endif
 }
 
@@ -403,6 +413,12 @@ fluid_utime (void)
     clock_gettime(CLOCK_REALTIME, &timeval);
 
     return (timeval.tv_sec * 1000000.0 + timeval.tv_nsec / 1000.0);
+#else
+    struct timeval tv;
+
+    gettimeofday(&tv, NULL);
+
+    return (tv.tv_sec * 1000000.0 + tv.tv_usec);
 #endif
 }
 
