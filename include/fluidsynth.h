@@ -36,6 +36,13 @@ extern "C" {
 #define FLUIDSYNTH_API __declspec(dllimport)
 #endif
 
+#elif defined(__OS2__)
+#if defined(FLUIDSYNTH_DLL_EXPORTS)
+#define FLUIDSYNTH_API __declspec(dllexport)
+#else
+#define FLUIDSYNTH_API
+#endif
+
 #elif defined(MACOS9)
 #define FLUIDSYNTH_API __declspec(export)
 
