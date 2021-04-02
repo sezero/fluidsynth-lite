@@ -64,6 +64,38 @@ typedef struct {
       (atomic)->value = (val);                                \
       __sync_synchronize();})
 
+#elif defined(__WATCOMC__) && defined(__386__)
+typedef volatile int atomic_int;
+typedef volatile unsigned int atomic_uint;
+typedef volatile float atomic_float;
+
+extern __inline int _xadd_watcom(volatile int *a, int v);
+extern __inline int _xchg_watcom(volatile int *a, int v);
+#pragma aux _xadd_watcom = \
+  "lock xadd [ecx], eax" \
+  parm [ecx] [eax] \
+  value [eax] \
+  modify exact [eax];
+
+#pragma aux _xchg_watcom = \
+  "lock xchg [ecx], eax" \
+  parm [ecx] [eax] \
+  value [eax] \
+  modify exact [eax];
+
+#define fluid_atomic_int_add(atomic, val) _xadd_watcom((atomic), (val))
+#define fluid_atomic_int_inc(atomic) _xadd_watcom((atomic), 1)
+#define fluid_atomic_int_set(atomic, val) _xchg_watcom((atomic), (val))
+#define fluid_atomic_int_get(atomic) (*(int*)(atomic))
+#define fluid_atomic_int_exchange_and_add(atomic, add)  \
+    _xadd_watcom((atomic), (val))
+#define fluid_atomic_float_get(atomic) (*(float *)(atomic))
+static __inline void
+fluid_atomic_float_set(atomic_float *atomic, float val) {
+    int ival = *(int *)&val;
+    _xchg_watcom((volatile int *)atomic, ival);
+}
+
 #elif defined(_WIN32)
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
