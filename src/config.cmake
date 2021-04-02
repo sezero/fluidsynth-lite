@@ -34,6 +34,9 @@
 /* Define to 1 if you have clock_gettime(). */
 #cmakedefine HAVE_CLOCK_GETTIME @HAVE_CLOCK_GETTIME@
 
+/* Define if you have <alloca.h> file. */
+#cmakdefine HAVE_ALLOCA_H @HAVE_ALLOCA_H@
+
 /* Define to 1 if you have the <dlfcn.h> header file. */
 #cmakedefine HAVE_DLFCN_H @HAVE_DLFCN_H@
 
@@ -135,9 +138,6 @@
 
 /* Define to 1 if you have the <getopt.h> header file. */
 #cmakedefine HAVE_GETOPT_H @HAVE_GETOPT_H@
-
-/* Define to 1 if you have the <pthread.h> header file. */
-#cmakedefine HAVE_PTHREAD_H @HAVE_PTHREAD_H@
 
 /* Define if using the MinGW32 environment */
 #cmakedefine MINGW32 @MINGW32@

@@ -122,6 +122,17 @@
 
 #include "fluidsynth.h"
 
+#ifdef HAVE_ALLOCA_H
+#include <alloca.h>
+#elif defined(_MSC_VER)
+#include <malloc.h>
+#define alloca _alloca
+#elif defined(__GNUC__)
+#define alloca __builtin_alloca
+#else /* blah */
+#include <stdlib.h>
+#endif
+
 
 /***************************************************************
  *
