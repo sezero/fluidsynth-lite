@@ -638,6 +638,11 @@ new_fluid_thread (const char *name, fluid_thread_func_t func, void *data, int pr
     fluid_return_val_if_fail (func != NULL, NULL);
 
     thread = FLUID_NEW(fluid_thread_t);
+    if (!thread) {
+        FLUID_LOG(FLUID_ERR, "Failed to create the thread");
+        return NULL;
+    }
+
     if (prio_level > 0) {
         info = FLUID_NEW (fluid_thread_info_t);
 
@@ -653,22 +658,17 @@ new_fluid_thread (const char *name, fluid_thread_func_t func, void *data, int pr
         func = fluid_thread_high_prio;
     }
 
-#if _WIN32
-    *thread = CreateThread(NULL, 0, func, data, 0, NULL);
-#else
+#if defined(HAVE_PTHREAD_H) && !defined(_WIN32)
     pthread_create(thread, NULL, func, data);
+#else /* _WIN32 */
+    thread->handle = CreateThread(NULL, 0, func, data, 0, NULL);
 #endif
 
-    if (!thread) {
-        FLUID_LOG(FLUID_ERR, "Failed to create the thread");
-        return NULL;
-    }
-
     if (detach) {
-#if _WIN32
-        CloseHandle(*thread);
-#else
+#if defined(HAVE_PTHREAD_H) && !defined(_WIN32)
         pthread_detach(*thread);
+#else /* _WIN32 */
+        CloseHandle(thread->handle);
 #endif
     }
 
@@ -682,7 +682,7 @@ new_fluid_thread (const char *name, fluid_thread_func_t func, void *data, int pr
 void
 delete_fluid_thread(fluid_thread_t* thread)
 {
-    /* Threads free themselves when they quit, nothing to do */
+    FLUID_FREE(thread);
 }
 
 /**
@@ -693,11 +693,11 @@ delete_fluid_thread(fluid_thread_t* thread)
 int
 fluid_thread_join(fluid_thread_t* thread)
 {
-#ifdef _WIN32
-    WaitForSingleObject(*thread, INFINITE);
-    CloseHandle(*thread);
-#else
+#if defined(HAVE_PTHREAD_H) && !defined(_WIN32)
     pthread_join(*thread, NULL);
+#else /* _WIN32 */
+    WaitForSingleObject(thread->handle, INFINITE);
+    CloseHandle(thread->handle);
 #endif
 
     return FLUID_OK;

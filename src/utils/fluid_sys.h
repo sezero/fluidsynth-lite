@@ -303,7 +303,9 @@ typedef DWORD fluid_private_t;
 #define FLUID_THREAD_RETURN_TYPE DWORD WINAPI
 #define FLUID_THREAD_RETURN_VALUE 0
 
-typedef HANDLE fluid_thread_t;
+typedef struct _fluid_thread_t {
+  HANDLE handle;
+} fluid_thread_t;
 typedef DWORD (WINAPI *fluid_thread_func_t)(void* data);
 
 #define FLUID_THREAD_ID_NULL            0                      /* A NULL "ID" value */
