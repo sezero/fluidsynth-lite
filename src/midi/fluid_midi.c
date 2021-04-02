@@ -1763,6 +1763,8 @@ fluid_player_join(fluid_player_t *player)
         while (player->status != FLUID_PLAYER_DONE) {
 #if defined(_WIN32)
             Sleep(10);
+#elif defined(__OS2__)
+            DosSleep(10);
 #else
             usleep(10000);
 #endif

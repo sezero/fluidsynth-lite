@@ -339,6 +339,9 @@ fluid_is_soundfont(const char *filename)
  * Get time in milliseconds to be used in relative timing operations.
  * @return Unix time in milliseconds.
  */
+#ifdef __OS2__
+static ULONG freq = 0;
+#endif
 unsigned int fluid_curtime(void)
 {
     static long initial_seconds = 0;
@@ -364,6 +367,17 @@ unsigned int fluid_curtime(void)
     time -= 11644473600000LL; // Milliseconds between Windows epoch (1601/01/01) and Unix
 
     return time - initial_seconds * 1000;
+#elif defined(__OS2__)
+    static unsigned long long start;
+    unsigned long long now;
+
+    if (initial_seconds == 0) {
+        DosTmrQueryFreq(&freq);
+        DosTmrQueryTime((PQWORD)&start);
+        initial_seconds = freq;/* blah*/
+    }
+    DosTmrQueryTime((PQWORD)&now);
+    return (now - start) * 1000 / freq;
 #elif defined(HAVE_CLOCK_GETTIME)
     struct timespec timeval;
 
@@ -407,6 +421,11 @@ fluid_utime (void)
     time -= 11644473600000000ULL; // Microseconds between Windows epoch (1601/01/01) and Unix
 
     return time / 1000000.0;
+#elif defined(__OS2__)
+    unsigned long long now;
+    if (!freq) DosTmrQueryFreq(&freq);
+    DosTmrQueryTime((PQWORD)&now);
+    return now * (1000000.0 / freq);
 #elif defined(HAVE_CLOCK_GETTIME)
     struct timespec timeval;
 
@@ -660,6 +679,8 @@ new_fluid_thread (const char *name, fluid_thread_func_t func, void *data, int pr
 
 #if defined(HAVE_PTHREAD_H) && !defined(_WIN32)
     pthread_create(thread, NULL, func, data);
+#elif defined(__OS2__)
+    thread->tid = _beginthread(func, NULL, 65536, data);
 #else /* _WIN32 */
     thread->handle = CreateThread(NULL, 0, func, data, 0, NULL);
 #endif
@@ -667,6 +688,8 @@ new_fluid_thread (const char *name, fluid_thread_func_t func, void *data, int pr
     if (detach) {
 #if defined(HAVE_PTHREAD_H) && !defined(_WIN32)
         pthread_detach(*thread);
+#elif defined(__OS2__)
+
 #else /* _WIN32 */
         CloseHandle(thread->handle);
 #endif
@@ -695,6 +718,8 @@ fluid_thread_join(fluid_thread_t* thread)
 {
 #if defined(HAVE_PTHREAD_H) && !defined(_WIN32)
     pthread_join(*thread, NULL);
+#elif defined(__OS2__)
+    DosWaitThread((PTID)&thread->tid, DCWW_WAIT);
 #else /* _WIN32 */
     WaitForSingleObject(thread->handle, INFINITE);
     CloseHandle(thread->handle);
@@ -730,6 +755,8 @@ fluid_timer_run (void *data)
         delay = (count * timer->msec) - (fluid_curtime() - start);
 #ifdef _WIN32
         if (delay > 0) Sleep (delay);
+#elif defined(__OS2__)
+        if (delay > 0) DosSleep (delay);
 #else
         if (delay > 0) usleep (delay * 1000);
 #endif

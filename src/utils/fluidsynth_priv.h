@@ -165,7 +165,7 @@ typedef uint32_t            uint32;
 //typedef guint64            uint64;
 
 /** Boolean types  */
-#ifndef _WIN32
+#if !defined(_WIN32) && !defined(__OS2__)
 #define TRUE true
 #define FALSE false
 #endif

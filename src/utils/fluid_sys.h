@@ -91,13 +91,6 @@ int fluid_debug(int level, char * fmt, ...);
 #endif
 
 
-#if defined(__OS2__)
-#define INCL_DOS
-#include <os2.h>
-
-typedef int socklen_t;
-#endif
-
 unsigned int fluid_curtime(void);
 double fluid_utime(void);
 
@@ -311,6 +304,143 @@ typedef DWORD (WINAPI *fluid_thread_func_t)(void* data);
 #define FLUID_THREAD_ID_NULL            0                      /* A NULL "ID" value */
 #define fluid_thread_id_t               DWORD                  /* Data type for a thread ID */
 #define fluid_thread_get_id()           GetCurrentThreadId()   /* Get unique "ID" for current thread */
+
+fluid_thread_t* new_fluid_thread(const char *name, fluid_thread_func_t func, void *data,
+                                 int prio_level, int detach);
+void delete_fluid_thread(fluid_thread_t* thread);
+void fluid_thread_self_set_prio (int prio_level);
+int fluid_thread_join(fluid_thread_t* thread);
+
+#elif defined(__OS2__)
+
+#define INCL_DOSPROFILE
+#define INCL_DOSPROCESS
+#define INCL_DOSSEMAPHORES
+#define INCL_DOSERRORS
+#include <os2.h>
+#include <process.h>
+
+/* Regular mutex */
+typedef HMTX fluid_mutex_t;
+#define fluid_mutex_init(_m)      DosCreateMutexSem(NULL, &(_m), 0, FALSE);
+#define fluid_mutex_destroy(_m)   DosCloseMutexSem((_m));
+#define fluid_mutex_lock(_m)      DosRequestMutexSem((_m), SEM_INDEFINITE_WAIT);
+#define fluid_mutex_unlock(_m)    DosReleaseMutexSem((_m))
+
+/* Recursive lock capable mutex */
+typedef HMTX fluid_rec_mutex_t;
+#define fluid_rec_mutex_init(_m)      DosCreateMutexSem(NULL, &(_m), 0, FALSE);
+#define fluid_rec_mutex_destroy(_m)   DosCloseMutexSem((_m));
+#define fluid_rec_mutex_lock(_m)      DosRequestMutexSem((_m), SEM_INDEFINITE_WAIT);
+#define fluid_rec_mutex_unlock(_m)    DosReleaseMutexSem((_m))
+
+/* Dynamically allocated mutex suitable for fluid_cond_t use */
+typedef HMTX fluid_cond_mutex_t;
+#define fluid_cond_mutex_init(_m)      DosCreateMutexSem(NULL, (_m), 0, FALSE);
+#define fluid_cond_mutex_destroy(_m)   DosCloseMutexSem(*(_m));
+#define fluid_cond_mutex_lock(_m)      DosRequestMutexSem(*(_m), SEM_INDEFINITE_WAIT);
+#define fluid_cond_mutex_unlock(_m)    DosReleaseMutexSem(*(_m))
+
+static FLUID_INLINE fluid_cond_mutex_t *
+new_fluid_cond_mutex (void)
+{
+    fluid_cond_mutex_t *mutex;
+    mutex = malloc(sizeof(fluid_cond_mutex_t));
+    fluid_cond_mutex_init(mutex);
+    return mutex;
+}
+
+static FLUID_INLINE void
+delete_fluid_cond_mutex (fluid_cond_mutex_t *m)
+{
+    fluid_cond_mutex_destroy(m);
+    free(m);
+}
+
+/* Thread condition signaling */
+typedef struct _fluid_cond_t {
+    int waiting;
+    HEV sem;
+} fluid_cond_t;
+
+static FLUID_INLINE fluid_cond_t *
+new_fluid_cond (void)
+{
+    fluid_cond_t *cond;
+    cond = malloc(sizeof(fluid_cond_t));
+    cond->waiting = -1;
+    cond->sem = (HEV)(-1);
+    DosCreateEventSem(NULL, &cond->sem, DCE_POSTONE, FALSE);
+    cond->waiting = 0;
+    return cond;
+}
+
+static FLUID_INLINE void
+delete_fluid_cond (fluid_cond_t *cond)
+{
+    APIRET rc;
+    do {
+        rc = DosCloseEventSem(cond->sem);
+        if (rc == ERROR_SEM_BUSY) {
+            DosPostEventSem(cond->sem);
+        }
+    } while (rc == ERROR_SEM_BUSY);
+    free(cond);
+}
+
+static FLUID_INLINE void
+fluid_cond_signal (fluid_cond_t *cond)
+{
+    if (cond->waiting) {
+        DosPostEventSem(cond->sem);
+    }
+}
+
+static FLUID_INLINE void
+fluid_cond_broadcast (fluid_cond_t *cond)
+{
+    int i = cond->waiting;
+    while (i--) {
+        DosPostEventSem(cond->sem);
+    }
+}
+
+static FLUID_INLINE void
+delete_fluid_broadcast (fluid_cond_t *cond)
+{
+    int i = cond->waiting;
+    while (i--) {
+        DosPostEventSem(cond->sem);
+    }
+}
+
+static FLUID_INLINE void
+fluid_cond_wait (fluid_cond_t *cond, fluid_cond_mutex_t *mutex)
+{
+    cond->waiting++;
+    DosReleaseMutexSem(*mutex);
+    DosWaitEventSem(cond->sem,SEM_INDEFINITE_WAIT);
+    DosRequestMutexSem(*mutex, SEM_INDEFINITE_WAIT);
+    cond->waiting--;
+}
+
+/* Thread private data */
+
+typedef ULONG **fluid_private_t;
+#define fluid_private_init(_priv)       DosAllocThreadLocalMemory(1, (ULONG **)&_priv);
+#define fluid_private_free(_priv)       DosFreeThreadLocalMemory((ULONG *)_priv);
+#define fluid_private_get(_priv)        (*_priv)
+#define fluid_private_set(_priv, _data) (*_priv = _data)
+
+/* Threads */
+
+#define FLUID_THREAD_RETURN_TYPE void
+#define FLUID_THREAD_RETURN_VALUE
+
+typedef struct _fluid_thread_t {
+  long tid;
+} fluid_thread_t;
+typedef void (*fluid_thread_func_t)(void *);
 
 fluid_thread_t* new_fluid_thread(const char *name, fluid_thread_func_t func, void *data,
                                  int prio_level, int detach);
