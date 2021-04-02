@@ -1,0 +1,59 @@
+# Makefile for OS/2 using Open Watcom
+#
+# wmake -f Makefile.os2
+# - builds fluidsyn.dll and its import lib (fluidsyn.lib)
+#
+# wmake -f Makefile.os2 target=static
+# - builds the static library fluidsyn_static.lib
+
+INCLUDES = -I"../include" -I"../os2" -Iutils -Isynth -Imidi -Irvoice -Isfloader
+CPPFLAGS = -DHAVE_CONFIG_H
+
+CFLAGS = -zq -bt=os2 -bm -fp5 -fpi87 -mf -oeatxh -wx -wcd=303 -ei -j -zp8
+# -5s : Pentium stack calling conventions
+CFLAGS+= -5s
+DLLFLAGS=-bd
+
+DLLNAME=fluidsyn.dll
+EXPNAME=fluidsyn.exp
+LIBNAME=fluidsyn.lib
+LIBSTATIC=fluidsyn_static.lib
+
+!ifeq target static
+BLD_TARGET=$(LIBSTATIC)
+!else
+CPPFLAGS+= -DFLUIDSYNTH_DLL_EXPORTS
+CFLAGS+= $(DLLFLAGS)
+BLD_TARGET=$(DLLNAME)
+!endif
+
+COMPILE=wcc386 $(CFLAGS) $(CPPFLAGS) $(INCLUDES)
+
+OBJ=fluid_conv.obj fluid_hash.obj fluid_list.obj fluid_ringbuffer.obj fluid_settings.obj fluid_sys.obj &
+    fluid_defsfont.obj fluid_ramsfont.obj &
+    fluid_adsr_env.obj fluid_chorus.obj fluid_iir_filter.obj fluid_lfo.obj fluid_rvoice.obj fluid_rvoice_dsp.obj fluid_rvoice_event.obj fluid_rvoice_mixer.obj fluid_rev.obj &
+    fluid_chan.obj fluid_event.obj fluid_gen.obj fluid_mod.obj fluid_synth.obj fluid_tuning.obj fluid_voice.obj &
+    fluid_midi.obj fluid_midi_router.obj fluid_seqbind.obj fluid_seq.obj
+
+
+all: $(BLD_TARGET)
+
+.SUFFIXES:
+.SUFFIXES: .obj .c .asm
+
+.c: utils;sfloader;rvoice;synth;midi
+
+$(DLLNAME): $(OBJ)
+	wlink NAM $@ OP q SYSTEM os2v2_dll INITINSTANCE TERMINSTANCE FIL {$(OBJ)} OPTION IMPF=$(EXPNAME)
+	wlib -q -b -n -c -pa -s -t -zld -ii -io -inn $(LIBNAME) +$(DLLNAME)
+
+$(LIBSTATIC): $(OBJ)
+	wlib -q -b -n -c -pa -s -t -zld -ii -io $@ $(OBJ)
+
+.c.obj:
+	$(COMPILE) -fo=$^@ $<
+
+distclean: clean .symbolic
+	rm -f *.err $(LIBSTATIC) $(DLLNAME) $(LIBNAME) $(EXPNAME)
+clean: .symbolic
+	rm -f *.obj
