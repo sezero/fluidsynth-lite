@@ -431,7 +431,12 @@ fluid_voice_mix (fluid_voice_t *voice, int count, fluid_real_t* dsp_buf,
                  fluid_real_t* reverb_buf, fluid_real_t* chorus_buf)
 {
     fluid_rvoice_buffers_t buffers;
-    fluid_real_t* dest_buf[4] = {left_buf, right_buf, reverb_buf, chorus_buf};
+    fluid_real_t* dest_buf[4];
+
+    dest_buf[0] = left_buf;
+    dest_buf[1] = right_buf;
+    dest_buf[2] = reverb_buf;
+    dest_buf[3] = chorus_buf;
 
     fluid_rvoice_buffers_set_amp(&buffers, 0, voice->amp_left);
     fluid_rvoice_buffers_set_amp(&buffers, 1, voice->amp_right);
