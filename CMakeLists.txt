@@ -110,7 +110,7 @@ unset ( FLUID_CPPFLAGS CACHE )
 unset ( FLUID_LIBS CACHE )
 
 # Options for the GNU C compiler only
-if ( CMAKE_COMPILER_IS_GNUCC )
+if ( CMAKE_COMPILER_IS_GNUCC OR CMAKE_C_COMPILER_ID MATCHES "Clang" )
   if ( NOT APPLE AND NOT OS2 )
     set ( CMAKE_EXE_LINKER_FLAGS
           "${CMAKE_EXE_LINKER_FLAGS} -Wl,--as-needed" )
@@ -126,7 +126,7 @@ if ( CMAKE_COMPILER_IS_GNUCC )
     set ( CMAKE_C_FLAGS_RELEASE "-fvisibility=hidden ${CMAKE_C_FLAGS_RELEASE}" )
     set ( CMAKE_C_FLAGS_RELWITHDEBINFO "-fvisibility=hidden ${CMAKE_C_FLAGS_RELWITHDEBINFO}" )
   endif ()
-endif ( CMAKE_COMPILER_IS_GNUCC )
+endif ()
 
 # Windows
 unset ( WINDOWS_SUPPORT CACHE )
