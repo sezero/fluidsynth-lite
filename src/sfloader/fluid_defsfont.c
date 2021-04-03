@@ -3146,12 +3146,13 @@ static int fixup_sample(SFData *sf)
 #define MOD_CHUNK_OPTIMUM_AREA 256
 #define GEN_CHUNK_OPTIMUM_AREA 256
 
-unsigned short badgen[] = {
+static const unsigned short badgen[] = {
     Gen_Unused1,   Gen_Unused2,   Gen_Unused3,   Gen_Unused4,
     Gen_Reserved1, Gen_Reserved2, Gen_Reserved3, 0
 };
 
-unsigned short badpgen[] = {Gen_StartAddrOfs,
+static const unsigned short badpgen[] = {
+                            Gen_StartAddrOfs,
                             Gen_EndAddrOfs,
                             Gen_StartLoopAddrOfs,
                             Gen_EndLoopAddrOfs,
