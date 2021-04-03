@@ -26,9 +26,7 @@
 #include "fluid_sys.h"
 
 #define STMT_START do {
-#define STMT_END                                                               \
-  }                                                                            \
-  while (0)
+#define STMT_END } while (0)
 
 #if FLUID_IS_BIG_ENDIAN
 #error "Define these things please..."
@@ -1961,7 +1959,7 @@ int fluid_sample_import_sfont(fluid_sample_t *sample, SFSample *sfsample,
   STMT_START {                                                                 \
     if (!safe_fread(var, 20, fd))                                              \
       return (FAIL);                                                           \
-    (*var)[20] = '\0';                                                         \
+    (var)[20] = '\0';                                                          \
   }                                                                            \
   STMT_END
 
@@ -2386,7 +2384,7 @@ static int load_phdr(int size, SFData *sf, FILE *fd)
         p = FLUID_NEW(SFPreset);
         sf->preset = fluid_list_append(sf->preset, p);
         p->zone = NULL;        /* In case of failure, sfont_close can cleanup */
-        READSTR(&p->name, fd); /* possible read failure ^ */
+        READSTR(p->name, fd);  /* possible read failure ^ */
         READW(p->prenum, fd);
         READW(p->bank, fd);
         READW(zndx, fd);
@@ -2709,7 +2707,7 @@ static int load_ihdr(int size, SFData *sf, FILE *fd)
         p = FLUID_NEW(SFInst);
         sf->inst = fluid_list_append(sf->inst, p);
         p->zone = NULL;        /* For proper cleanup if fail (sfont_close) */
-        READSTR(&p->name, fd); /* Possible read failure ^ */
+        READSTR(p->name, fd);  /* Possible read failure ^ */
         READW(zndx, fd);
 
         if (pr) { /* not first instrument? */
@@ -3013,7 +3011,7 @@ static int load_shdr(unsigned int size, SFData *sf, FILE *fd)
     for (i = 0; i < size; i++) {
         p = FLUID_NEW(SFSample);
         sf->sample = fluid_list_append(sf->sample, p);
-        READSTR(&p->name, fd);
+        READSTR(p->name, fd);
         READD(p->start, fd);
         READD(p->end, fd);       /* - end, loopstart and loopend */
         READD(p->loopstart, fd); /* - will be checked and turned into */
