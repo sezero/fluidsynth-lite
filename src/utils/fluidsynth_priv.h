@@ -26,14 +26,6 @@
 #include "config.h"
 #endif
 
-#if defined(__POWERPC__) && !(defined(__APPLE__) && defined(__MACH__))
-#include "config_maxmsp43.h"
-#endif
-
-#if defined(_WIN32) && !defined(__MINGW32__)
-#include "config_win32.h"
-#endif
-
 #if HAVE_STRING_H
 #include <string.h>
 #endif
@@ -94,29 +86,26 @@
 #include <limits.h>
 #endif
 
+#if defined(_MSC_VER)
+#if _MSC_VER < 1900
+#define snprintf _snprintf
+#define vsnprintf _vsnprintf
+#endif
+#pragma warning(disable : 4244)
+#pragma warning(disable : 4101)
+#pragma warning(disable : 4305)
+#pragma warning(disable : 4996)
+#endif
+
 #ifdef _WIN32
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 #endif
 
-/* MinGW32 special defines */
-#ifdef MINGW32
-
-#include <stdint.h>
-#define snprintf _snprintf
-#define vsnprintf _vsnprintf
-
+#ifndef STDIN_FILENO
 #define STDIN_FILENO 0
 #define STDOUT_FILENO 1
 #define STDERR_FILENO 2
-
-#endif
-
-/* Darwin special defines (taken from config_macosx.h) */
-#ifdef DARWIN
-#define MACINTOSH
-#define __Types__
-#define WITHOUT_SERVER 1
 #endif
 
 
@@ -124,11 +113,15 @@
 
 #ifdef HAVE_ALLOCA_H
 #include <alloca.h>
+#elif defined(__WATCOMC__)
+#include <malloc.h>
 #elif defined(_MSC_VER)
 #include <malloc.h>
 #define alloca _alloca
 #elif defined(__GNUC__)
-#define alloca __builtin_alloca
+# if !defined(alloca)
+#  define alloca __builtin_alloca
+# endif
 #else /* blah */
 #include <stdlib.h>
 #endif

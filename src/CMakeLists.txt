@@ -147,7 +147,6 @@ if ( LIBFLUID_CPPFLAGS )
 endif ( LIBFLUID_CPPFLAGS )
 
 target_link_libraries ( libfluidsynth
-    ${WINDOWS_LIBS}
     ${LIBFLUID_LIBS}
 )
 

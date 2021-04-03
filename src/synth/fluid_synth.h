@@ -184,10 +184,6 @@ struct _fluid_synth_t {
     unsigned int min_note_length_ticks; /**< If note-offs are triggered just after a note-on, they will be delayed */
 
     int cores;                         /**< Number of CPU cores (1 by default) */
-
-#ifdef LADSPA
-    fluid_LADSPA_FxUnit_t* LADSPA_FxUnit; /**< Effects unit for LADSPA support */
-#endif
 };
 
 int fluid_synth_setstr(fluid_synth_t* synth, const char* name, const char* str);

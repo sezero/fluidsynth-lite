@@ -7,7 +7,7 @@
 # - builds the static library fluidsyn_static.lib
 
 INCLUDES = -I"../include" -I"../os2" -Iutils -Isynth -Imidi -Irvoice -Isfloader
-CPPFLAGS = -DHAVE_CONFIG_H
+CPPFLAGS = -DHAVE_CONFIG_H=1 -DNDEBUG
 
 CFLAGS = -zq -bt=os2 -bm -fp5 -fpi87 -mf -oeatxh -wx -wcd=303 -ei -j -zp8
 # -5s : Pentium stack calling conventions

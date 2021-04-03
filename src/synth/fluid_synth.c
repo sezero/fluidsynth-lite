@@ -182,8 +182,6 @@ void fluid_synth_settings(fluid_settings_t* settings)
                                 FLUID_HINT_TOGGLED, NULL, NULL);
     fluid_settings_register_int(settings, "synth.chorus.active", 1, 0, 1,
                                 FLUID_HINT_TOGGLED, NULL, NULL);
-    fluid_settings_register_int(settings, "synth.ladspa.active", 0, 0, 1,
-                                FLUID_HINT_TOGGLED, NULL, NULL);
     fluid_settings_register_int(settings, "synth.lock-memory", 1, 0, 1,
                                 FLUID_HINT_TOGGLED, NULL, NULL);
     fluid_settings_register_str(settings, "midi.portname", "", 0, NULL, NULL);
@@ -670,12 +668,6 @@ new_fluid_synth(fluid_settings_t *settings)
     if (synth->eventhandler == NULL)
         goto error_recovery;
 
-#ifdef LADSPA
-    /* Create and initialize the Fx unit.*/
-    synth->LADSPA_FxUnit = new_fluid_LADSPA_FxUnit(synth);
-    fluid_rvoice_mixer_set_ladspa(synth->eventhandler->mixer, synth->LADSPA_FxUnit);
-#endif
-
     /* allocate and add the default sfont loader */
     loader = new_fluid_defsfloader(settings);
 
@@ -873,12 +865,6 @@ delete_fluid_synth(fluid_synth_t* synth)
     }
 
     fluid_private_free (synth->tuning_iter);
-
-#ifdef LADSPA
-    /* Release the LADSPA Fx unit */
-    fluid_LADSPA_shutdown(synth->LADSPA_FxUnit);
-    FLUID_FREE(synth->LADSPA_FxUnit);
-#endif
 
     fluid_rec_mutex_destroy(synth->mutex);
 
