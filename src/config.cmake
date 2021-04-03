@@ -35,7 +35,7 @@
 #cmakedefine HAVE_CLOCK_GETTIME @HAVE_CLOCK_GETTIME@
 
 /* Define if you have <alloca.h> file. */
-#cmakdefine HAVE_ALLOCA_H @HAVE_ALLOCA_H@
+#cmakedefine HAVE_ALLOCA_H @HAVE_ALLOCA_H@
 
 /* Define to 1 if you have the <dlfcn.h> header file. */
 #cmakedefine HAVE_DLFCN_H @HAVE_DLFCN_H@
