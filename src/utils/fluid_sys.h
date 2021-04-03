@@ -482,7 +482,6 @@ fluid_private_set_int(fluid_private_t priv, int data)
 
 fluid_istream_t fluid_get_stdin (void);
 fluid_ostream_t fluid_get_stdout (void);
-int fluid_istream_readline(fluid_istream_t in, fluid_ostream_t out, char* prompt, char* buf, int len);
 int fluid_ostream_printf (fluid_ostream_t out, char* format, ...);
 
 

@@ -45,9 +45,6 @@ struct _fluid_timer_t {
 };
 
 
-static int fluid_istream_gets(fluid_istream_t in, char* buf, int len);
-
-
 static char fluid_errbuf[512];  /* buffer for error message */
 
 static fluid_log_function_t fluid_log_function[LAST_LOG_LEVEL];
@@ -857,72 +854,6 @@ fluid_ostream_t
 fluid_get_stdout (void)
 {
     return STDOUT_FILENO;
-}
-
-/**
- * Read a line from an input stream.
- * @return 0 if end-of-stream, -1 if error, non zero otherwise
- */
-int
-fluid_istream_readline (fluid_istream_t in, fluid_ostream_t out, char* prompt,
-                        char* buf, int len)
-{
-#if WITH_READLINE
-    if (in == fluid_get_stdin ()) {
-        char *line;
-
-        line = readline (prompt);
-
-        if (line == NULL)
-            return -1;
-
-        snprintf(buf, len, "%s", line);
-        buf[len - 1] = 0;
-
-        free(line);
-        return 1;
-    } else
-#endif
-    {
-        fluid_ostream_printf (out, "%s", prompt);
-        return fluid_istream_gets (in, buf, len);
-    }
-}
-
-/**
- * Reads a line from an input stream (socket).
- * @param in The input socket
- * @param buf Buffer to store data to
- * @param len Maximum length to store to buf
- * @return 1 if a line was read, 0 on end of stream, -1 on error
- */
-static int
-fluid_istream_gets (fluid_istream_t in, char* buf, int len)
-{
-    char c;
-    int n;
-
-    buf[len - 1] = 0;
-
-    while (--len > 0) {
-        n = read(in, &c, 1);
-        if (n == -1) return -1;
-
-        if (n == 0) {
-            *buf++ = 0;
-            return 0;
-        }
-
-        if (c == '\n') {
-            *buf++ = 0;
-            return 1;
-        }
-
-        /* Store all characters excluding CR */
-        if (c != '\r') *buf++ = c;
-    }
-
-    return -1;
 }
 
 /**
