@@ -29,7 +29,7 @@ BLD_TARGET=$(DLLNAME)
 
 COMPILE=wcc386 $(CFLAGS) $(CPPFLAGS) $(INCLUDES)
 
-OBJ=fluid_conv.obj fluid_hash.obj fluid_list.obj fluid_ringbuffer.obj fluid_settings.obj fluid_sys.obj &
+OBJ=fluid_sys.obj fluid_conv.obj fluid_hash.obj fluid_list.obj fluid_ringbuffer.obj fluid_settings.obj &
     fluid_defsfont.obj fluid_ramsfont.obj &
     fluid_adsr_env.obj fluid_chorus.obj fluid_iir_filter.obj fluid_lfo.obj fluid_rvoice.obj fluid_rvoice_dsp.obj fluid_rvoice_event.obj fluid_rvoice_mixer.obj fluid_rev.obj &
     fluid_chan.obj fluid_event.obj fluid_gen.obj fluid_mod.obj fluid_synth.obj fluid_tuning.obj fluid_voice.obj &
