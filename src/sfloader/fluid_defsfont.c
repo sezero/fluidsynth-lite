@@ -29,14 +29,16 @@
 #define STMT_END } while (0)
 
 #if FLUID_IS_BIG_ENDIAN
-#error "Define these things please..."
+#define UINT16_FROM_LE(x) ( ((x)<<8) | ((x)>>8) )
+#define UINT32_FROM_LE(x) ( ((x)<<24) | (((x)<<8) & 0x00FF0000) | \
+                            (((x)>>8) & 0x0000FF00) | ((x)>>24) )
+#define INT16_FROM_LE(x)  (int) UINT16_FROM_LE((x))
+#define INT32_FROM_LE(x)  (int) UINT32_FROM_LE((x))
 #else
 #define UINT32_FROM_LE(x) x
 #define UINT16_FROM_LE(x) x
-#define UINT8_FROM_LE(x) x
 #define INT32_FROM_LE(x) x
 #define INT16_FROM_LE(x) x
-#define INT8_FROM_LE(x) x
 #endif
 
 #define FLUID_INT_TO_POINTER(val) ((void*) (((char*) 0) + (val)))
@@ -1896,7 +1898,7 @@ int fluid_sample_import_sfont(fluid_sample_t *sample, SFSample *sfsample,
   STMT_START {                                                                 \
     if (!safe_fread(var, 8, fd))                                               \
       return (FAIL);                                                           \
-    ((SFChunk *)(var))->size = GUINT32_FROM_LE(((SFChunk *)(var))->size);      \
+    ((SFChunk *)(var))->size = UINT32_FROM_LE(((SFChunk *)(var))->size);       \
   }                                                                            \
   STMT_END
 
@@ -1905,7 +1907,7 @@ int fluid_sample_import_sfont(fluid_sample_t *sample, SFSample *sfsample,
     unsigned int _temp;                                                        \
     if (!safe_fread(&_temp, 4, fd))                                            \
       return (FAIL);                                                           \
-    var = GINT32_FROM_LE(_temp);                                               \
+    var = UINT32_FROM_LE(_temp);                                               \
   }                                                                            \
   STMT_END
 
@@ -1914,7 +1916,7 @@ int fluid_sample_import_sfont(fluid_sample_t *sample, SFSample *sfsample,
     unsigned short _temp;                                                      \
     if (!safe_fread(&_temp, 2, fd))                                            \
       return (FAIL);                                                           \
-    var = GINT16_FROM_LE(_temp);                                               \
+    var = UINT16_FROM_LE(_temp);                                               \
   }                                                                            \
   STMT_END
 
@@ -1933,7 +1935,7 @@ int fluid_sample_import_sfont(fluid_sample_t *sample, SFSample *sfsample,
     unsigned int _temp;                                                        \
     if (!safe_fread(&_temp, 4, fd))                                            \
       return (FAIL);                                                           \
-    var = INT32_FROM_LE(_temp);                                                \
+    var = UINT32_FROM_LE(_temp);                                               \
   }                                                                            \
   STMT_END
 
@@ -1942,7 +1944,7 @@ int fluid_sample_import_sfont(fluid_sample_t *sample, SFSample *sfsample,
     unsigned short _temp;                                                      \
     if (!safe_fread(&_temp, 2, fd))                                            \
       return (FAIL);                                                           \
-    var = INT16_FROM_LE(_temp);                                                \
+    var = UINT16_FROM_LE(_temp);                                               \
   }                                                                            \
   STMT_END
 

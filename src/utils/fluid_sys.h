@@ -61,8 +61,11 @@ void fluid_time_config(void);
 #define FLUID_POINTER_TO_INT(x)             ((intptr_t)(x))
 #define FLUID_N_ELEMENTS(struct)            (sizeof (struct) / sizeof (struct[0]))
 
-// TODO: Add proper big endianess check
-#define FLUID_IS_BIG_ENDIAN                 false // (G_BYTE_ORDER == G_BIG_ENDIAN)
+#if defined(WORDS_BIGENDIAN)
+#define FLUID_IS_BIG_ENDIAN                 1
+#else
+#define FLUID_IS_BIG_ENDIAN                 0
+#endif
 
 /*
  * Utility functions
