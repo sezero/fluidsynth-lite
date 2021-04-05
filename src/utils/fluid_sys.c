@@ -18,13 +18,14 @@
  * 02110-1301, USA
  */
 
-#if defined(_WIN32)
+#include "fluid_sys.h"
+
+#ifdef HAVE_IO_H
 #include <io.h>
-#elif defined(__APPLE__)
+#endif
+#if defined(__APPLE__)
 #include "apple/timing_mach.h"
 #endif
-
-#include "fluid_sys.h"
 
 /* SCHED_FIFO priority for high priority timer threads */
 #define FLUID_SYS_TIMER_HIGH_PRIO_LEVEL         10

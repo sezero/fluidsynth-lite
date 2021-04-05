@@ -85,6 +85,9 @@
 /* Define to 1 if you have the <sys/types.h> header file. */
 #cmakedefine HAVE_SYS_TYPES_H @HAVE_SYS_TYPES_H@
 
+/* Define to 1 if you have the <io.h> header file. */
+#cmakedefine HAVE_IO_H @HAVE_IO_H@
+
 /* Define to 1 if you have the <unistd.h> header file. */
 #cmakedefine HAVE_UNISTD_H @HAVE_UNISTD_H@
 
