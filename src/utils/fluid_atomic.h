@@ -47,11 +47,6 @@ typedef struct {
             __sync_synchronize();                                 \
             __sync_fetch_and_add(&(atomic)->value, 1);})
 
-#define fluid_atomic_int_compare_and_exchange(atomic, oldval, newval) __extension__ ({ \
-            STATIC_ASSERT(sizeof((atomic)->value) == sizeof(int),       \
-                          "Atomic must be the size of an int");         \
-            __sync_bool_compare_and_swap(&(atomic)->value, (oldval), (newval));})
-
 #define fluid_atomic_float_get(atomic) __extension__ ({   \
   STATIC_ASSERT(sizeof((atomic)->value) == sizeof(float), \
                 "Atomic must be the size of a float");    \
@@ -83,13 +78,14 @@ extern __inline int _xchg_watcom(volatile int *a, int v);
   value [eax] \
   modify exact [eax];
 
-#define fluid_atomic_int_add(atomic, val) _xadd_watcom((atomic), (val))
-#define fluid_atomic_int_inc(atomic) _xadd_watcom((atomic), 1)
+static __inline int fluid_atomic_int_add(atomic_int *i, int val) {
+  int r = _xadd_watcom(i,val);
+  return r + val;
+}
+#define fluid_atomic_int_inc(atomic) fluid_atomic_int_add((atomic), 1)
 #define fluid_atomic_int_set(atomic, val) _xchg_watcom((atomic), (val))
 #define fluid_atomic_int_get(atomic) (*(int*)(atomic))
-#define fluid_atomic_int_exchange_and_add(atomic, add)  \
-    _xadd_watcom((atomic), (add))
-#define fluid_atomic_float_get(atomic) (*(float *)(atomic))
+#define fluid_atomic_float_get(atomic) (*(atomic))
 static __inline void
 fluid_atomic_float_set(atomic_float *atomic, float val) {
     int ival = *(int *)&val;
@@ -108,8 +104,6 @@ typedef volatile LONG atomic_float;
 #define fluid_atomic_int_add(atomic, val) InterlockedAdd((atomic), (val))
 #define fluid_atomic_int_get(atomic) (*(LONG*)(atomic))
 #define fluid_atomic_int_set(atomic, val) InterlockedExchange((atomic), (val))
-#define fluid_atomic_int_exchange_and_add(atomic, add)  \
-    InterlockedExchangeAdd((atomic), (add))
 
 #define fluid_atomic_float_get(atomic) (*(FLOAT*)(atomic))
 
