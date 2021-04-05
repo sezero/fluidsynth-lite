@@ -88,7 +88,7 @@ extern __inline int _xchg_watcom(volatile int *a, int v);
 #define fluid_atomic_int_set(atomic, val) _xchg_watcom((atomic), (val))
 #define fluid_atomic_int_get(atomic) (*(int*)(atomic))
 #define fluid_atomic_int_exchange_and_add(atomic, add)  \
-    _xadd_watcom((atomic), (val))
+    _xadd_watcom((atomic), (add))
 #define fluid_atomic_float_get(atomic) (*(float *)(atomic))
 static __inline void
 fluid_atomic_float_set(atomic_float *atomic, float val) {
