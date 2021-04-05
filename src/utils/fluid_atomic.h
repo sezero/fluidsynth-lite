@@ -59,6 +59,50 @@ typedef struct {
       (atomic)->value = (val);                                \
       __sync_synchronize();})
 
+#elif defined(__GNUC__)
+
+typedef struct {
+    volatile int value;
+} atomic_int;
+typedef struct {
+    volatile unsigned value;
+} atomic_uint;
+typedef struct {
+    volatile float value;
+} atomic_float;
+
+#if defined(__i386__) || defined(__x86_64__)
+static inline int fluid_atomic_float_get(atomic_float *atomic) {
+    return atomic->value;
+}
+static inline int fluid_atomic_int_get(atomic_int *atomic) {
+    return atomic->value;
+}
+static inline int fluid_atomic_int_set(atomic_int *atomic, int val) {
+    int ret;
+    __asm__ __volatile__("lock; xchgl %0,(%1)"
+                         : "=r" (ret) : "r" (&atomic->value), "0" (val) : "memory");
+    return ret;
+}
+static inline int fluid_atomic_int_add(atomic_int *atomic, int val) {
+    int ret;
+    __asm__ __volatile__("lock; xaddl %0,(%1)"
+                         : "=r" (ret) : "r" (&atomic->value), "0" (val) : "memory");
+    return ret + val;
+}
+static inline int fluid_atomic_int_inc(atomic_int *atomic) {
+    return fluid_atomic_int_add(atomic, 1);
+}
+#else
+#error define atomics for your cpu
+#endif
+static inline void
+fluid_atomic_float_set(atomic_float *atomic, float val) {
+    union { float f; int i; } u;
+    u.f = val;
+    fluid_atomic_int_set((atomic_int *)atomic, u.i);
+}
+
 #elif defined(__WATCOMC__) && defined(__386__)
 typedef volatile int atomic_int;
 typedef volatile unsigned int atomic_uint;
