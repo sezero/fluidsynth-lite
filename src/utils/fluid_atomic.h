@@ -93,6 +93,36 @@ static inline int fluid_atomic_int_add(atomic_int *atomic, int val) {
 static inline int fluid_atomic_int_inc(atomic_int *atomic) {
     return fluid_atomic_int_add(atomic, 1);
 }
+#elif defined(__powerpc__) || defined(__POWERPC__) || defined(__PPC__) || defined(__ppc__)
+static inline int fluid_atomic_int_add(atomic_int *atomic, int a) {
+    int old, t;
+  __asm__ __volatile__(
+"1:	lwarx	%0,0,%2\n"
+"	add	%1,%0,%3\n"
+"	stwcx.	%1,0,%2\n"
+"	bne-	1b\n"
+	: "=&r"(old), "=&r"(t)
+	: "r"(&atomic->value), "r"(a)
+	: "memory", "cr0"
+    );
+    return old;
+}
+static inline int fluid_atomic_int_inc(atomic_int *atomic) {
+    return fluid_atomic_int_add(atomic, 1);
+}
+static inline int fluid_atomic_int_get(const atomic_int *atomic) {
+    int t;
+    __asm__ __volatile__("lwz%U1%X1 %0,%1" : "=r"(t) : "m"(atomic->value));
+    return t;
+}
+static inline void fluid_atomic_int_set(atomic_int *atomic, int val) {
+    __asm__ __volatile__("stw%U0%X0 %1,%0" : "=m"(atomic->value) : "r"(val));
+}
+static inline float fluid_atomic_float_get(atomic_float *atomic) {
+    union { float f; int i; } u;
+    u.i = fluid_atomic_int_get((atomic_int *)atomic);
+    return u.f;
+}
 #else
 #error define atomics for your cpu
 #endif
