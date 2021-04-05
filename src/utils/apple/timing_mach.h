@@ -54,19 +54,19 @@
 #endif
 
 /* timespec to double */
-inline double timespec2secd(const struct timespec *ts_in) {
+static inline double timespec2secd(const struct timespec *ts_in) {
     return ((double) ts_in->tv_sec) + ((double) ts_in->tv_nsec ) * TIMING_NANO;
 }
 
 /* double sec to timespec */
-inline void secd2timespec(struct timespec *ts_out, const double sec_d) {
+static inline void secd2timespec(struct timespec *ts_out, const double sec_d) {
     ts_out->tv_sec = (time_t) (sec_d);
     ts_out->tv_nsec = (long) ((sec_d - (double) ts_out->tv_sec) * TIMING_GIGA);
 }
 
 /* timespec difference (monotonic) left - right */
-inline void timespec_monodiff_lmr(struct timespec *ts_out,
-                                    const struct timespec *ts_in) {
+static inline void timespec_monodiff_lmr(struct timespec *ts_out,
+                                         const struct timespec *ts_in) {
     /* out = out - in,
        where out > in
      */
@@ -87,8 +87,8 @@ inline void timespec_monodiff_lmr(struct timespec *ts_out,
 }
 
 /* timespec difference (monotonic) right - left */
-inline void timespec_monodiff_rml(struct timespec *ts_out,
-                                    const struct timespec *ts_in) {
+static inline void timespec_monodiff_rml(struct timespec *ts_out,
+                                         const struct timespec *ts_in) {
     /* out = in - out,
        where in > out
      */
@@ -109,8 +109,8 @@ inline void timespec_monodiff_rml(struct timespec *ts_out,
 }
 
 /* timespec addition (monotonic) */
-inline void timespec_monoadd(struct timespec *ts_out,
-                             const struct timespec *ts_in) {
+static inline void timespec_monoadd(struct timespec *ts_out,
+                                    const struct timespec *ts_in) {
     /* out = in + out */
     ts_out->tv_sec = ts_out->tv_sec + ts_in->tv_sec;
     ts_out->tv_nsec = ts_out->tv_nsec + ts_in->tv_nsec;
@@ -125,7 +125,7 @@ inline void timespec_monoadd(struct timespec *ts_out,
 /* MACH */
 
     /* emulate clock_nanosleep for CLOCK_MONOTONIC and TIMER_ABSTIME */
-    inline int clock_nanosleep_abstime ( const struct timespec *req )
+    static inline int clock_nanosleep_abstime ( const struct timespec *req )
     {
         struct timespec ts_delta;
         int retval = clock_gettime ( CLOCK_MONOTONIC, &ts_delta );

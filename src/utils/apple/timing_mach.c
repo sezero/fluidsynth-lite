@@ -15,15 +15,6 @@
 /* ******** */
 #endif
 
-extern double timespec2secd(const struct timespec *ts_in);
-extern void secd2timespec(struct timespec *ts_out, const double sec_d);
-extern void timespec_monodiff_lmr(struct timespec *ts_out,
-                                  const struct timespec *ts_in);
-extern void timespec_monodiff_rml(struct timespec *ts_out,
-                                  const struct timespec *ts_in);
-extern void timespec_monoadd(struct timespec *ts_out,
-                             const struct timespec *ts_in);
-
 #ifdef __MACH__
 /* ******** */
 /* __MACH__ */
@@ -87,8 +78,8 @@ extern void timespec_monoadd(struct timespec *ts_out,
     /* initialize */
     int timing_mach_init (void) {
         static int call_count = 0;
-        call_count++;
         int retval = -2;
+        call_count++;
         if (call_count == 1) {
             retval = mach_timebase_info (&ro_timing_mach_g.timebase);
             if (retval == 0) {
