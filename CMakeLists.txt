@@ -291,6 +291,9 @@ set ( CPACK_STRIP_FILES ON )
 
 include ( CPack )
 
+get_directory_property(hasParent PARENT_DIRECTORY)
+if(hasParent)
 # set variables for including in other CMakeLists
-set ( FLUIDSYNTH_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/include" "${CMAKE_CURRENT_BINARY_DIR}/include" PARENT_SCOPE )
-set ( FLUIDSYNTH_LIBRARIES libfluidsynth PARENT_SCOPE )
+  set(FLUIDSYNTH_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/include" "${CMAKE_CURRENT_BINARY_DIR}/include" PARENT_SCOPE)
+  set(FLUIDSYNTH_LIBRARIES libfluidsynth PARENT_SCOPE)
+endif()
