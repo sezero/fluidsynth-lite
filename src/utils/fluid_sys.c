@@ -23,9 +23,6 @@
 #ifdef HAVE_IO_H
 #include <io.h>
 #endif
-#if defined(__APPLE__)
-#include "apple/timing_mach.h"
-#endif
 
 /* SCHED_FIFO priority for high priority timer threads */
 #define FLUID_SYS_TIMER_HIGH_PRIO_LEVEL         10

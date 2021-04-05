@@ -148,14 +148,27 @@ else ( WIN32 )
   set ( HAVE_LIBPTHREAD on )
   set ( LIBFLUID_LIBS m pthread )
   if ( enable-clock-gettime )
-    check_library_exists(rt clock_gettime "" FOUND_CLOCK_GETTIME)
-    if(FOUND_CLOCK_GETTIME)
-      set(HAVE_CLOCK_GETTIME 1)
-      set(LIBFLUID_LIBS "${LIBFLUID_LIBS};rt")
-    else()
-      check_library_exists(c clock_gettime "" FOUND_CLOCK_GETTIME)
-      if(FOUND_CLOCK_GETTIME)
+    if(APPLE)
+      if(IOS OR TVOS)
         set(HAVE_CLOCK_GETTIME 1)
+      else()
+        check_c_source_compiles("
+          #include <AvailabilityMacros.h>
+          #include <time.h>
+          #if MAC_OS_X_VERSION_MIN_REQUIRED < 101200
+          #error Need 10.12 or newer target
+          #endif
+          int main(int argc,char **argv) { struct timespec tp; return clock_gettime(CLOCK_MONOTONIC,&tp); }
+        " HAVE_CLOCK_GETTIME)
+        endif()
+    else()
+      check_library_exists(c clock_gettime "" CLOCK_GETTIME_LIBC)
+      check_library_exists(rt clock_gettime "" CLOCK_GETTIME_LIBRT)
+      if (CLOCK_GETTIME_LIBC OR CLOCK_GETTIME_LIBRT)
+        set(HAVE_CLOCK_GETTIME 1)
+        if(NOT CLOCK_GETTIME_LIBC)
+          set(LIBFLUID_LIBS "${LIBFLUID_LIBS};rt")
+        endif()
       endif()
     endif()
   endif()
