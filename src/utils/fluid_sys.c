@@ -792,7 +792,13 @@ new_fluid_timer (int msec, fluid_timer_callback_t callback, void* data,
             FLUID_FREE (timer);
             return NULL;
         }
-    } else fluid_timer_run (timer); /* Run directly, instead of as a separate thread */
+    } else {
+        fluid_timer_run (timer);  /* Run directly, instead of as a separate thread */
+        if (auto_destroy) {
+            /* do NOT return freed memory */
+            return NULL;
+        }
+    }
 
     return timer;
 }
